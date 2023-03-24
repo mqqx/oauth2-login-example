@@ -68,8 +68,7 @@ class Oauth2LoginExampleApplicationIT {
     this.webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
     WebResponse signInResponse = signIn(page, "user1", "password").getWebResponse();
     // there is no "default" index page
-    assertThat(signInResponse.getStatusCode())
-        .isEqualTo(HttpStatus.NOT_FOUND.value());
+    assertThat(signInResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
   }
 
   @Test

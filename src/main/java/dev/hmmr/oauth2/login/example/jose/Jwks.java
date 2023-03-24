@@ -36,27 +36,25 @@ public final class Jwks {
     KeyPair keyPair = KeyGeneratorUtils.generateRsaKey();
     RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
     RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        return new RSAKey.Builder(publicKey)
+    return new RSAKey.Builder(publicKey)
         .privateKey(privateKey)
         .keyID(UUID.randomUUID().toString())
         .build();
-      }
+  }
 
   public static ECKey generateEc() {
     KeyPair keyPair = KeyGeneratorUtils.generateEcKey();
     ECPublicKey publicKey = (ECPublicKey) keyPair.getPublic();
     ECPrivateKey privateKey = (ECPrivateKey) keyPair.getPrivate();
     Curve curve = Curve.forECParameterSpec(publicKey.getParams());
-        return new ECKey.Builder(curve, publicKey)
+    return new ECKey.Builder(curve, publicKey)
         .privateKey(privateKey)
         .keyID(UUID.randomUUID().toString())
         .build();
-      }
+  }
 
   public static OctetSequenceKey generateSecret() {
     SecretKey secretKey = KeyGeneratorUtils.generateSecretKey();
-        return new OctetSequenceKey.Builder(secretKey)
-        .keyID(UUID.randomUUID().toString())
-        .build();
-      }
+    return new OctetSequenceKey.Builder(secretKey).keyID(UUID.randomUUID().toString()).build();
+  }
 }

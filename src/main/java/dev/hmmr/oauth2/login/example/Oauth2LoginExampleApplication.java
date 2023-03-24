@@ -9,5 +9,4 @@ public class Oauth2LoginExampleApplication {
   public static void main(String[] args) {
     SpringApplication.run(Oauth2LoginExampleApplication.class, args);
   }
-
 }
