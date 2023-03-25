@@ -1,10 +1,13 @@
 package dev.hmmr.oauth2.login.example.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import dev.hmmr.oauth2.login.example.jose.Jwks;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +17,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -44,19 +46,19 @@ public class AuthorizationServerConfig {
       throws Exception {
     OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
     // Enable OpenID Connect 1.0
-    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(Customizer.withDefaults());
+    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class).oidc(withDefaults());
 
     http.exceptionHandling(
             exceptions ->
                 exceptions.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
         .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-
+    http.cors(withDefaults());
     return http.build();
   }
 
   @Bean
   public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
-    RegisteredClient registeredClient =
+    RegisteredClient confidentialClient =
         RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("messaging-client")
             .clientSecret("{noop}secret")
@@ -76,7 +78,7 @@ public class AuthorizationServerConfig {
     // Save registered client in db as if in-memory
     JdbcRegisteredClientRepository registeredClientRepository =
         new JdbcRegisteredClientRepository(jdbcTemplate);
-    registeredClientRepository.save(registeredClient);
+    registeredClientRepository.save(confidentialClient);
 
     return registeredClientRepository;
   }
@@ -115,7 +117,7 @@ public class AuthorizationServerConfig {
     return new EmbeddedDatabaseBuilder()
         .generateUniqueName(true)
         .setType(EmbeddedDatabaseType.H2)
-        .setScriptEncoding("UTF-8")
+        .setScriptEncoding(StandardCharsets.UTF_8.name())
         .addScript(
             "org/springframework/security/oauth2/server/authorization/oauth2-authorization-schema.sql")
         .addScript(
